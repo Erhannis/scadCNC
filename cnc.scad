@@ -39,7 +39,7 @@ MOTOR_HOUSING_SIDE_THICKNESS = 10;
 MOTOR_HOUSING_TOP_THICKNESS = 3.5;
 MOTOR_HOUSING_JOINER_EXTRA_SPACING = 10;
 
-module nema17_housing(motor_height = 39.3, side_thickness = 10, top_thickness = 3.5, slop = 0, joiner_clearance = 0, holes = true, top = false) {
+module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10, top_thickness = 3.5, slop = 0, joiner_clearance = 0, holes = true, top = false) {
   NEMA = 17;
   SX = nema_motor_width(NEMA);
   SY = motor_height;
@@ -48,7 +48,11 @@ module nema17_housing(motor_height = 39.3, side_thickness = 10, top_thickness = 
   rotate([0,90,0]) {
     difference() {
       cube([2*THICK+SZ + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*slop, 2*THICK+SY + 2*slop, 2*top_thickness+SX + 2*slop], center=true);
-      if (!top) { // Overhang removal
+      if (top) {
+        // Plug hole
+        translate([0,(SY+2*slop)/4,-BIG/2]) cube([plug_width+2*slop, (SY+2*slop)/2, BIG], center=true);
+      } else {
+        // Overhang removal
         translate([-BIG/2,0,0]) cube([BIG, SY+2*slop, SX+2*slop], center=true);
       }
       HOLE = 1;
@@ -151,7 +155,7 @@ union() { // Corner with motor
       -(2*MOTOR_HOUSING_TOP_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,
       (2*MOTOR_HOUSING_SIDE_THICKNESS+motor_height+ 2*MOTOR_HOUSING_SLOP)/2,
       (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
-    rotate([0,0,180]) nema17_housing(motor_height=motor_height, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
+    rotate([0,0,180]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 }
 
-* rotate([0,-90,0]) nema17_housing(motor_height=motor_height, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
+* rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
