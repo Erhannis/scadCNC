@@ -9,6 +9,7 @@ use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
 use <deps.link/BOSL/nema_steppers.scad>
 use <deps.link/BOSL/joiners.scad>
+use <deps.link/BOSL/shapes.scad>
 
 $fn=60;
 BIG = 1000;
@@ -106,28 +107,28 @@ module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10,
 }
 
 
-module pseudocircularHole(d, h) {
-  rotate([90,0,0]) {
-    cylinder(d=d, h=h, center=true);
-    intersection() {
-      rotate([0,0,-45]) cube([d, d, h], center=true);
-      rotate([0,0,90]) cube([BIG, d / sqrt(2), BIG], center=true);
-    }
-  }
-}
 
-module pulley_housing(p_od = 18, p_oh = 8.5, hole_d = 5, brace_w = 30, brace_t = 15, dslop = 2, hslop = 0.5, cutout = false) {
+
+/**
+Note that the spacer_h does NOT affect the overall size of the gap!
+I.e., if spacer_h gets too big, you won't be able to fit the pulley between the spacers.
+*/
+module pulley_housing(p_od = 18, p_oh = 8.5, hole_d = 5, brace_w = 30, brace_t = 14.2, dslop = 2, hslop = 1, rim_h=0, rim_t=1, spacer_h = 0.5, spacer_t = 1, cutout = false) {
   if (cutout) {
-    pseudocircularHole(d=hole_d,h=brace_t*2);
+    teardrop(d=hole_d,h=brace_t*2);
   } else {
     difference() {
-      translate([0,p_oh+hslop*2+brace_t/2,0]) {
-        cmirror([0,0,1]) translate([-brace_w/2,-brace_t/2,(p_od+dslop*2)/2]) skew([0,0,0,-45,0,0])
-          cube([brace_w, brace_t, (p_od+dslop*2)*2]);
-        cube([brace_w, brace_t, p_od+dslop*2], center=true);
+      union() {
+        translate([0,p_oh+hslop*2+brace_t/2,0]) {
+          cmirror([0,0,1]) translate([-brace_w/2,-brace_t/2,(p_od+dslop*2)/2]) skew([0,0,0,-45,0,0])
+            cube([brace_w, brace_t, (p_od+dslop*2)*2]);
+          cube([brace_w, brace_t, p_od+dslop*2], center=true);
+        }
+        rotate([-90,0,0]) tube(h=spacer_h, id=hole_d, d=hole_d+spacer_t*2);
+        translate([0,p_oh+hslop*2,0]) rotate([90,0,0]) tube(h=spacer_h, id=hole_d, d=hole_d+spacer_t*2);
       }
       OYm();
-      translate([0,(p_oh+hslop*2+brace_t)/2,0]) pseudocircularHole(d=hole_d,h=p_oh+hslop*2+brace_t);
+      translate([0,(p_oh+hslop*2+brace_t)/2,0]) teardrop(d=hole_d,h=p_oh+hslop*2+brace_t);
     }
   }
 }
@@ -198,7 +199,7 @@ motor_height = 39.3;
 * rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 
 //difference() { // For test
-* union() { // Corner with pulley
+union() { // Corner with pulley
   difference() {
     corner();
     translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
@@ -210,9 +211,9 @@ motor_height = 39.3;
     rotate([0,0,90]) pulley_housing();
 }
 //OXp(); // For test
-//OYm([0,50,0]);
-//OZp([0,0,15]);
-//}
+//OYm([0,50,0]); // For test
+//OZp([0,0,15]); // For test
+//} // For test
 
-// Pulley peg - print at high infill.  Maybe >75%?
-peg(d=5,h=40,taper_l=1.5);
+// Pulley peg - print at high infill and/or shells.  Maybe >75%?  Maybe 100%?
+// peg(d=5,h=40,taper_l=1.5);*
