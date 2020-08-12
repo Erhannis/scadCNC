@@ -13,6 +13,7 @@ use <deps.link/BOSL/shapes.scad>
 
 $fn=60;
 BIG = 1000;
+EPS = 1e-8;
 
 
 METAL_T = 1.5;
@@ -161,17 +162,18 @@ module corner() {
     difference() { // Cutouts
       union() {
         cmirror([-1,1,0]) difference() {
-          translate([BLOCK_L,0,0]) rotate([0,-90,0]) cylinder($fn=3,d=CUTOUT_W,h=BLOCK_L+CUTOUT_W+1000);
+          translate([BLOCK_L+0.1,0,0]) rotate([0,-90,0]) cylinder($fn=3,d=CUTOUT_W,h=BLOCK_L+CUTOUT_W+1000);
           rotate([0,0,-45]) OXm();
         }
         difference() {
-          rotate([0,0,45]) translate([BLOCK_L,0,0]) rotate([0,-90,0]) cylinder($fn=3,d=CUTOUT_W,h=BLOCK_L+CUTOUT_W);
+          rotate([0,0,45]) translate([BLOCK_L+0.1,0,0]) rotate([0,-90,0]) cylinder($fn=3,d=CUTOUT_W,h=BLOCK_L+CUTOUT_W+1000);
           OXm();
           OYm();
         }
       }
       OZm();
     }
+    translate([BLOCK_L/2,BLOCK_L/2,-(-BLOCK_T/2-EXTRA_TOP)/4]) rotate([0,0,45]) teardrop(d=2.5,h=50);
     OXm([-BLOCK_T/2,0,0]);
     OYm([0,-BLOCK_T/2,0]);
   }
@@ -199,7 +201,7 @@ motor_height = 39.3;
 * rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 
 //difference() { // For test
-union() { // Corner with pulley
+mirror([1,0,0]) union() { // Corner with pulley
   difference() {
     corner();
     translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])

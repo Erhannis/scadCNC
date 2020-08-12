@@ -50,6 +50,10 @@ difference() { // Carriage
       translate([SX,0,0]) cube([SX*2,B_DIAM*1.1,B_DIAM*1.5+SLOT_WIDTH],center=true);
     }
   }
+  OXp();
+  OZp([0,0,53]);
+  OYp([0,26.5,0]);
+  OZm([0,0,8]);
 }
 
 * difference() { // Test slot
