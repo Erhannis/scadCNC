@@ -5,6 +5,7 @@ Printed at -0.08mm horizontal extrusion (Cura).
 
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
+use <belt_clamp.scad>
 
 $fn=60;
 
@@ -24,18 +25,35 @@ WALL_HEIGHT = WALL_THICK*5;
 SLOT_FREE = 0.6;
 SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
-DUMMY = false;
+DUMMY = true;
+
+module addons() {
+  CLAMP_L = 100;
+  CLAMP_T = 15;
+  BLOCK_H = 9+CLAMP_T/2; // The 9 is kinda cheating
+  
+  translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,CLAMP_L/2])
+    difference() {
+      rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
+      // This cutoff won't print QUITE right, but hopefully good enough
+      rotate([0,45,0]) OZm([0,0,0]);
+    }
+}
 
 difference() { // Carriage
-  linear_extrude(height=WALL_HEIGHT)
-    difference() {
-      union() {
-        channel([0,0],[0,METAL_SIZE],d=WALL_THICK, cap="none");
-        channel([0,METAL_SIZE-WALL_THICK/10],[0,METAL_SIZE],d=WALL_THICK, cap="square");
+  union() {
+    addons();
+    linear_extrude(height=WALL_HEIGHT) {
+      difference() {
+        union() {
+          channel([0,0],[0,METAL_SIZE],d=WALL_THICK, cap="none");
+          channel([0,METAL_SIZE-WALL_THICK/10],[0,METAL_SIZE],d=WALL_THICK, cap="square");
+        }
+        channel([0,0],[0,METAL_SIZE],d=METAL_THICK*2, cap="none");
+        channel([0,METAL_SIZE-METAL_THICK*2],[0,METAL_SIZE],d=METAL_THICK*2, cap="square");
       }
-      channel([0,0],[0,METAL_SIZE],d=METAL_THICK*2, cap="none");
-      channel([0,METAL_SIZE-METAL_THICK*2],[0,METAL_SIZE],d=METAL_THICK*2, cap="square");
     }
+  }
   INSET = -B_DIAM/2-METAL_THICK/2;
   mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK, dummy=DUMMY);
   for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK, dummy=DUMMY);
@@ -50,10 +68,6 @@ difference() { // Carriage
       translate([SX,0,0]) cube([SX*2,B_DIAM*1.1,B_DIAM*1.5+SLOT_WIDTH],center=true);
     }
   }
-  OXp();
-  OZp([0,0,53]);
-  OYp([0,26.5,0]);
-  OZm([0,0,8]);
 }
 
 * difference() { // Test slot
