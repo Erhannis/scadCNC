@@ -6,7 +6,7 @@ Printed at -0.08mm horizontal extrusion (Cura).
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
 use <belt_clamp.scad>
-include <motor_params.scad>
+include <params.scad>
 
 $fn=60;
 
@@ -40,6 +40,9 @@ BELT_GAP = 17; // or so
 CLAMP_OY = -4+BELT_GAP;
 CLAMP_OZ = 80;
 MOTOR_OY = -BLOCK_H/3;
+
+
+
 
 module addons() {
   linear_extrude(height=CLAMP_OZ) {
@@ -105,6 +108,48 @@ difference() { // Carriage
   }
 }
 
+CROSSBAR_SEAT_OY = METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY;
+CROSSBAR_SEAT_OZ = CLAMP_OZ-10;
+CROSSBAR_SEAT_SX = 20;
+CROSSBAR_SEAT_WALL = 5;
+CROSSBAR_SY = 25.64;
+CROSSBAR_SZ = 25.64;
+CROSSBAR_SOCKET = 5;
+ENDSTOP_SCREW_HOLE_L = CROSSBAR_SEAT_WALL*3;
+
+union() { // Crossbar seat
+  translate([WALL_THICK/2,CROSSBAR_SEAT_OY,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) rotate([0,0,-90]) ledge(CROSSBAR_SY,CROSSBAR_SEAT_SX);
+  translate([WALL_THICK/2,CROSSBAR_SEAT_OY-CROSSBAR_SY/2-CROSSBAR_SEAT_WALL/2,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) rotate([0,0,-90]) ledge(CROSSBAR_SEAT_WALL,CROSSBAR_SEAT_SX);
+  difference() {
+    translate([WALL_THICK/2,CROSSBAR_SEAT_OY-CROSSBAR_SY/2-CROSSBAR_SEAT_WALL,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) cube([CROSSBAR_SEAT_SX,CROSSBAR_SEAT_WALL,CROSSBAR_SZ]);
+    // Endstop screw holes
+    translate([ENDSTOP_SCREW_HOLE_DX+WALL_THICK/2+CROSSBAR_SEAT_SX,CROSSBAR_SEAT_OY-CROSSBAR_SY/2-ENDSTOP_SCREW_HOLE_L/2-CROSSBAR_SEAT_WALL/2,CROSSBAR_SEAT_OZ-CROSSBAR_SZ/2]) cmirror([0,0,1]) translate([0,0,ENDSTOP_SCREW_SEPARATION/2]) rotate([-90,0,0]) cylinder(d=ENDSTOP_SCREW_HOLE_D,h=ENDSTOP_SCREW_HOLE_L);
+  }
+  ctranslate([0,0,CROSSBAR_SOCKET*3])
+    ctranslate([0,CROSSBAR_SOCKET*1.5,0])
+      translate([WALL_THICK/2,CROSSBAR_SEAT_OY+CROSSBAR_SY/2+CROSSBAR_SOCKET/2,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) {
+        down(CROSSBAR_SOCKET) rotate([0,0,-90]) ledge(CROSSBAR_SOCKET,CROSSBAR_SOCKET/3);
+        translate([CROSSBAR_SOCKET/3,0,0]) rotate([0,0,-90]) half_joiner(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
+      }
+}
+
+//translate([40+2, CROSSBAR_SEAT_OY+25.5, CROSSBAR_SEAT_OZ-30.6]) rotate([0,0,180])
+*rotate([0,-90,0]) union() { // Crossbar seat clip
+  up(CROSSBAR_SZ+CROSSBAR_SOCKET) cube([CROSSBAR_SEAT_SX, CROSSBAR_SY/2+CROSSBAR_SOCKET*2.5, CROSSBAR_SEAT_WALL]);
+  difference() {
+    cube([CROSSBAR_SEAT_SX, CROSSBAR_SOCKET*2.5, CROSSBAR_SZ+CROSSBAR_SOCKET]);
+    translate([CROSSBAR_SEAT_SX,0,0])
+      ctranslate([0,0,CROSSBAR_SOCKET*3])
+        ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
+            translate([-CROSSBAR_SOCKET,0,0]) cube([CROSSBAR_SOCKET,CROSSBAR_SOCKET,CROSSBAR_SOCKET*2]);
+          }
+  }
+  translate([CROSSBAR_SEAT_SX-CROSSBAR_SOCKET/3,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
+    ctranslate([0,0,CROSSBAR_SOCKET*3])
+      ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
+          translate([CROSSBAR_SOCKET/3,0,0]) rotate([0,0,-90]) half_joiner2(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
+        }
+}
 * difference() { // Test slot
   cube([B_WIDTH*3,B_BORE*1.1,B_DIAM*3],center=true);
   bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2);

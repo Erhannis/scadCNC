@@ -8,7 +8,7 @@ Printed at -0.08mm horizontal extrusion (Cura).
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
 use <deps.link/BOSL/shapes.scad>
-include <motor_params.scad>
+include <params.scad>
 
 $fn=60;
 BIG = 1000;
@@ -21,13 +21,8 @@ BLOCK_T = 40;
 
 BLOCK_L = 90;
 CUTOUT_W = 5*(9/5);
-ENDSTOP_SCREW_HOLE_D = 2;
+
 ENDSTOP_SCREW_HOLE_L = BLOCK_T/2;//40;
-ENDSTOP_SCREW_SEPARATION = 9.5;
-ENDSTOP_CUTOUT_SY = 7;
-ENDSTOP_CUTOUT_SZ = 20;
-ENDSTOP_CUTOUT_SX = 17;
-ENDSTOP_SCREW_HOLE_DX = -ENDSTOP_CUTOUT_SX/2;
 
 EXTRA_TOP = 40;
 
@@ -109,7 +104,8 @@ module corner() {
 
 motor_height = 39.3;
 //rotate([180,0,0])
-* union() { // Corner with motor
+//mirror([1,0,0]) // Opposite side
+union() { // Corner with motor
   difference() {
     corner();
     // Endstop cutout
@@ -129,7 +125,8 @@ motor_height = 39.3;
 * rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 
 //difference() { // For test
-mirror([1,0,0]) union() { // Corner with pulley
+//mirror([1,0,0]) // Opposite side
+*union() { // Corner with pulley
   difference() {
     corner();
     translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
