@@ -6,6 +6,7 @@ Printed at -0.08mm horizontal extrusion (Cura).
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
 use <belt_clamp.scad>
+include <motor_params.scad>
 
 $fn=60;
 
@@ -27,17 +28,49 @@ SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
 DUMMY = true;
 
+
+
+
+CLAMP_L = 100;
+CLAMP_T = 15;
+BLOCK_H = 9+CLAMP_T/2; // The 9 is kinda cheating
+BELT_INTERVAL = 11; // or so
+BELT_GAP = 17; // or so
+
+CLAMP_OY = -4+BELT_GAP;
+CLAMP_OZ = 80;
+MOTOR_OY = -BLOCK_H/3;
+
 module addons() {
-  CLAMP_L = 100;
-  CLAMP_T = 15;
-  BLOCK_H = 9+CLAMP_T/2; // The 9 is kinda cheating
+  linear_extrude(height=CLAMP_OZ) {
+    channel([0,METAL_SIZE+WALL_THICK/2],[0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY+(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2],d=WALL_THICK, cap="none");
+  }
   
-  translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,CLAMP_L/2])
-    difference() {
-      rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
-      // This cutoff won't print QUITE right, but hopefully good enough
-      rotate([0,45,0]) OZm([0,0,0]);
-    }
+  difference() {
+    translate([0,CLAMP_OY,0]) translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,-CLAMP_L/2+CLAMP_OZ])
+      difference() {
+        union() {
+          rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
+          
+          translate([-CLAMP_T/2,MOTOR_OY,-motor_height+20])
+            translate([
+                -(2*MOTOR_HOUSING_TOP_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,
+                0,
+                (2*MOTOR_HOUSING_SIDE_THICKNESS+motor_height + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2
+              ])
+              rotate([0,0,180]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, point_up=true, support=true);
+
+          difference() {
+            translate([-CLAMP_T/2,MOTOR_OY-(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,-50]) cube([CLAMP_T, 2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP, 100]);
+            WALL = 2;
+            translate([-CLAMP_T/2,0*BELT_INTERVAL,-50]) translate([WALL,-BLOCK_H,0]) cube([CLAMP_T-2*WALL, 2*BLOCK_H, 100]);
+          }
+        }
+        // This cutoff won't print QUITE right, but hopefully good enough
+        down(33-(-motor_height+20)) rotate([0,45,0]) OZm([0,0,0]);
+      }
+    OZm();
+  }
 }
 
 difference() { // Carriage
@@ -54,10 +87,12 @@ difference() { // Carriage
       }
     }
   }
+  translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
   INSET = -B_DIAM/2-METAL_THICK/2;
-  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK, dummy=DUMMY);
-  for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK, dummy=DUMMY);
-  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK, dummy=DUMMY);
+  //TODO Missing motor-side base wall-facing bearings - not sure if room
+  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
+  for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK/2, dummy=DUMMY);
+  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
   for (j=[0.2,0.5,0.8]) translate([0,0,WALL_HEIGHT*j]) translate(-[(WALL_THICK/2-METAL_THICK*2/2)/2+METAL_THICK*2/2,0,0]) translate([0,-INSET-METAL_THICK,0]) rotate([0,0,180]) {
     bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, dummy=DUMMY);
     translate([0,-B_DIAM*0.8,0]) {
@@ -78,3 +113,7 @@ difference() { // Carriage
 
 // Bearing placer
 * rotate([90,0,0]) bearingPlacer([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5],bearing_diam=B_DIAM*1.05);
+
+// Motor cover
+* rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
+
