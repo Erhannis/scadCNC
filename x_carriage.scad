@@ -133,29 +133,32 @@ union() { // Crossbar seat
       }
 }
 
-*translate([40+2, CROSSBAR_SEAT_OY+25.5, CROSSBAR_SEAT_OZ-30.6]) rotate([0,0,180])
-//rotate([0,-90,0])
+//translate([40+2, CROSSBAR_SEAT_OY+25.5, CROSSBAR_SEAT_OZ-30.6]) rotate([0,0,180])
+*rotate([0,-90,0])
 union() { // Crossbar seat clip
+  JD = joiner_depth(w=CROSSBAR_SOCKET,h=2*CROSSBAR_SOCKET);
   difference() {
     union() {
       up(CROSSBAR_SZ+CROSSBAR_SOCKET) cube([CROSSBAR_SEAT_SX, CROSSBAR_SY/2+CROSSBAR_SOCKET*2.5, CROSSBAR_SEAT_WALL]);
-      cube([CROSSBAR_SEAT_SX, CROSSBAR_SOCKET*2.5, CROSSBAR_SZ+CROSSBAR_SOCKET]);
-      translate([CROSSBAR_SEAT_SX-CROSSBAR_SOCKET/3,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
+      cube([CROSSBAR_SEAT_SX-JD, CROSSBAR_SOCKET*2.5, CROSSBAR_SZ+CROSSBAR_SOCKET]);
+      translate([CROSSBAR_SEAT_SX-JD,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
         ctranslate([0,0,CROSSBAR_SOCKET*3])
           ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
-              translate([CROSSBAR_SOCKET/3,0,0]) translate([-CROSSBAR_SEAT_SX/2,0,0]) cube([CROSSBAR_SEAT_SX,CROSSBAR_SOCKET,2*CROSSBAR_SOCKET], center=true);
+              translate([JD,0,0]) translate([-CROSSBAR_SEAT_SX/2,0,0]) cube([CROSSBAR_SEAT_SX,CROSSBAR_SOCKET,2*CROSSBAR_SOCKET], center=true);
             }
     }
+    GAP = 1;
     translate([CROSSBAR_SEAT_SX,0,0])
       ctranslate([0,0,CROSSBAR_SOCKET*3])
         ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
             translate([-CROSSBAR_SOCKET,0,0]) cube([CROSSBAR_SOCKET,CROSSBAR_SOCKET,CROSSBAR_SOCKET*2]);
+            translate([-JD,0,0]) translate([0,-GAP,-GAP]) cube([JD,CROSSBAR_SOCKET+2*GAP,CROSSBAR_SOCKET*2+2*GAP]);
           }
   }
-  translate([CROSSBAR_SEAT_SX-CROSSBAR_SOCKET/3,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
+  translate([CROSSBAR_SEAT_SX-JD,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
     ctranslate([0,0,CROSSBAR_SOCKET*3])
       ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
-          translate([CROSSBAR_SOCKET/3,0,0]) rotate([0,0,-90]) half_joiner2(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
+          translate([0,0,0]) rotate([0,0,-90]) half_joiner2(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
         }
 }
 * difference() { // Test slot
