@@ -14,10 +14,9 @@ B_WIDTH = 5;
 B_BORE = 6;
 B_DIAM = 13;
 
-METAL_SIZE = 32+5;
-METAL_THICK = 1.5;
+METAL_SIZE = METAL_H+5;
 
-WALL_THICK = METAL_THICK * 20;
+WALL_THICK = METAL_T * 20;
 LIP = B_WIDTH*2;
 WALL_HEIGHT = WALL_THICK*5;
 
@@ -46,7 +45,8 @@ MOTOR_OY = -BLOCK_H/3;
 
 module addons() {
   linear_extrude(height=CLAMP_OZ) {
-    channel([0,METAL_SIZE+WALL_THICK/2],[0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY+(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2],d=WALL_THICK, cap="none");
+    EXTRA = 6.6666;
+    channel([0,METAL_SIZE+WALL_THICK/2],[0,EXTRA+METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY+(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2],d=WALL_THICK, cap="none");
   }
   
   difference() {
@@ -85,18 +85,18 @@ difference() { // Carriage
           channel([0,0],[0,METAL_SIZE],d=WALL_THICK, cap="none");
           channel([0,METAL_SIZE-WALL_THICK/10],[0,METAL_SIZE],d=WALL_THICK, cap="square");
         }
-        channel([0,0],[0,METAL_SIZE],d=METAL_THICK*2, cap="none");
-        channel([0,METAL_SIZE-METAL_THICK*2],[0,METAL_SIZE],d=METAL_THICK*2, cap="square");
+        channel([0,0],[0,METAL_SIZE],d=METAL_T*2, cap="none");
+        channel([0,METAL_SIZE-METAL_T*2],[0,METAL_SIZE],d=METAL_T*2, cap="square");
       }
     }
   }
   translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
-  INSET = -B_DIAM/2-METAL_THICK/2;
+  INSET = -B_DIAM/2-METAL_T/2;
   //TODO Missing motor-side base wall-facing bearings - not sure if room
   mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
   for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK/2, dummy=DUMMY);
   for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
-  for (j=[0.2,0.5,0.8]) translate([0,0,WALL_HEIGHT*j]) translate(-[(WALL_THICK/2-METAL_THICK*2/2)/2+METAL_THICK*2/2,0,0]) translate([0,-INSET-METAL_THICK,0]) rotate([0,0,180]) {
+  for (j=[0.2,0.5,0.8]) translate([0,0,WALL_HEIGHT*j]) translate(-[(WALL_THICK/2-METAL_T*2/2)/2+METAL_T*2/2,0,0]) translate([0,-INSET-METAL_T,0]) rotate([0,0,180]) {
     bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, dummy=DUMMY);
     translate([0,-B_DIAM*0.8,0]) {
       bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, dummy=true);
@@ -114,7 +114,7 @@ CROSSBAR_SEAT_SX = 20;
 CROSSBAR_SEAT_WALL = 5;
 CROSSBAR_SY = 25.64;
 CROSSBAR_SZ = 25.64;
-CROSSBAR_SOCKET = 5;
+CROSSBAR_SOCKET = 10;
 ENDSTOP_SCREW_HOLE_L = CROSSBAR_SEAT_WALL*3;
 
 union() { // Crossbar seat
@@ -128,16 +128,24 @@ union() { // Crossbar seat
   ctranslate([0,0,CROSSBAR_SOCKET*3])
     ctranslate([0,CROSSBAR_SOCKET*1.5,0])
       translate([WALL_THICK/2,CROSSBAR_SEAT_OY+CROSSBAR_SY/2+CROSSBAR_SOCKET/2,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) {
-        down(CROSSBAR_SOCKET) rotate([0,0,-90]) ledge(CROSSBAR_SOCKET,CROSSBAR_SOCKET/3);
-        translate([CROSSBAR_SOCKET/3,0,0]) rotate([0,0,-90]) half_joiner(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
+        down(CROSSBAR_SOCKET) rotate([0,0,-90]) ledge(CROSSBAR_SOCKET,joiner_depth(w=CROSSBAR_SOCKET,h=2*CROSSBAR_SOCKET));
+        translate([joiner_depth(w=CROSSBAR_SOCKET,h=2*CROSSBAR_SOCKET),0,0]) rotate([0,0,-90]) half_joiner(h=CROSSBAR_SOCKET*2, w=CROSSBAR_SOCKET);
       }
 }
 
-//translate([40+2, CROSSBAR_SEAT_OY+25.5, CROSSBAR_SEAT_OZ-30.6]) rotate([0,0,180])
-*rotate([0,-90,0]) union() { // Crossbar seat clip
-  up(CROSSBAR_SZ+CROSSBAR_SOCKET) cube([CROSSBAR_SEAT_SX, CROSSBAR_SY/2+CROSSBAR_SOCKET*2.5, CROSSBAR_SEAT_WALL]);
+*translate([40+2, CROSSBAR_SEAT_OY+25.5, CROSSBAR_SEAT_OZ-30.6]) rotate([0,0,180])
+//rotate([0,-90,0])
+union() { // Crossbar seat clip
   difference() {
-    cube([CROSSBAR_SEAT_SX, CROSSBAR_SOCKET*2.5, CROSSBAR_SZ+CROSSBAR_SOCKET]);
+    union() {
+      up(CROSSBAR_SZ+CROSSBAR_SOCKET) cube([CROSSBAR_SEAT_SX, CROSSBAR_SY/2+CROSSBAR_SOCKET*2.5, CROSSBAR_SEAT_WALL]);
+      cube([CROSSBAR_SEAT_SX, CROSSBAR_SOCKET*2.5, CROSSBAR_SZ+CROSSBAR_SOCKET]);
+      translate([CROSSBAR_SEAT_SX-CROSSBAR_SOCKET/3,CROSSBAR_SOCKET/2,CROSSBAR_SOCKET])
+        ctranslate([0,0,CROSSBAR_SOCKET*3])
+          ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {
+              translate([CROSSBAR_SOCKET/3,0,0]) translate([-CROSSBAR_SEAT_SX/2,0,0]) cube([CROSSBAR_SEAT_SX,CROSSBAR_SOCKET,2*CROSSBAR_SOCKET], center=true);
+            }
+    }
     translate([CROSSBAR_SEAT_SX,0,0])
       ctranslate([0,0,CROSSBAR_SOCKET*3])
         ctranslate([0,CROSSBAR_SOCKET*1.5,0]) {

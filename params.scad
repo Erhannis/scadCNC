@@ -1,6 +1,12 @@
 use <deps.link/BOSL/nema_steppers.scad>
 use <deps.link/BOSL/joiners.scad>
 
+// Metal
+
+METAL_T = 1.5;
+METAL_H = 32;
+
+
 // Endstop
 
 ENDSTOP_SCREW_HOLE_D = 2;

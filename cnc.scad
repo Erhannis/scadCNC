@@ -14,9 +14,6 @@ $fn=60;
 BIG = 1000;
 EPS = 1e-8;
 
-
-METAL_T = 1.5;
-METAL_H = 32;
 BLOCK_T = 40;
 
 BLOCK_L = 90;
