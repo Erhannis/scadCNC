@@ -28,10 +28,6 @@ SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
 DUMMY = true;
 
-translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
-  translate([-CORNER_BLOCK_T/2,CORNER_BLOCK_L-CORNER_BLOCK_T/2,-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP])
-  rotate([0,0,90]) cube(10,center=true);
-
 X_BELT_OZREAL = -2 + METAL_TOP - (-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP + (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2); // Initial small slop to account for bottom bearing gap
 
 // Defaults for pulley_housing in cnc.scad
@@ -56,17 +52,16 @@ CLAMP_OY = -4+BELT_GAP;
 CLAMP_OZ = 80;
 MOTOR_OY = -BLOCK_H/3;
 
-//BELT_H;
-
 
 module addons() {
   linear_extrude(height=CLAMP_OZ) {
-    EXTRA = 6.6666;
+    EXTRA = 20/3;
     channel([0,METAL_SIZE+WALL_THICK/2],[0,EXTRA+METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY+(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2],d=WALL_THICK, cap="none");
   }
   
   difference() {
-    translate([0,CLAMP_OY,0]) translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,-CLAMP_L/2+CLAMP_OZ])
+    //translate([0,CLAMP_OY,0]) translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,-CLAMP_L/2+CLAMP_OZ])
+    translate([X_BELT_OX,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),-CLAMP_L/2+CLAMP_OZ])
       difference() {
         union() {
           translate([0,BELT_INTERVAL/2-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
@@ -84,9 +79,9 @@ module addons() {
 
           // Tunnel
           difference() {
-            translate([-CLAMP_T/2,MOTOR_OY-(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,-50]) cube([CLAMP_T, 2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP, 100]);
+            translate([-CLAMP_T/2,MOTOR_OY-(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,-CLAMP_L/2]) cube([CLAMP_T+((-CLAMP_T/2-WALL_THICK/2)-X_BELT_OX), 2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP, CLAMP_L]);
             WALL = 2;
-            translate([-CLAMP_T/2,0*BELT_INTERVAL,-50]) translate([WALL,-BLOCK_H,0]) cube([CLAMP_T-2*WALL, 2*BLOCK_H, 100]);
+            translate([-CLAMP_T/2,0*BELT_INTERVAL,-CLAMP_L/2]) translate([WALL,-BLOCK_H,0]) cube([CLAMP_T-2*WALL, 2*BLOCK_H, CLAMP_L]);
           }
         }
         // Ledge cutoff
@@ -111,12 +106,15 @@ difference() { // Carriage
       }
     }
   }
-  translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
+  // Y-Belt tunnel
+  //translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
+  ctranslate([0,BELT_INTERVAL,0]) translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
+  
   INSET = -B_DIAM/2-METAL_T/2;
   //TODO Missing motor-side base wall-facing bearings - not sure if room
-  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
+  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.8, dummy=DUMMY);
   for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK/2, dummy=DUMMY);
-  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.7, dummy=DUMMY);
+  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.8, dummy=DUMMY);
   for (j=[0.2,0.5,0.8]) translate([0,0,WALL_HEIGHT*j]) translate(-[(WALL_THICK/2-METAL_T*2/2)/2+METAL_T*2/2,0,0]) translate([0,-INSET-METAL_T,0]) rotate([0,0,180]) {
     bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, dummy=DUMMY);
     translate([0,-B_DIAM*0.8,0]) {
