@@ -15,4 +15,4 @@ module beltClamp(l=20,t=15) {
   }
 }
 
-beltClamp();
+//beltClamp();

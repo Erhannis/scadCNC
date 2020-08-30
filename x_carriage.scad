@@ -5,8 +5,8 @@ Printed at -0.08mm horizontal extrusion (Cura).
 
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
-use <belt_clamp.scad>
-include <params.scad>
+include <belt_clamp.scad>
+include <common.scad>
 
 $fn=60;
 
@@ -15,6 +15,7 @@ B_BORE = 6;
 B_DIAM = 13;
 
 METAL_SIZE = METAL_H+5;
+METAL_TOP = METAL_H-METAL_T;
 
 WALL_THICK = METAL_T * 20;
 LIP = B_WIDTH*2;
@@ -27,7 +28,22 @@ SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
 DUMMY = true;
 
+translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
+  translate([-CORNER_BLOCK_T/2,CORNER_BLOCK_L-CORNER_BLOCK_T/2,-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP])
+  rotate([0,0,90]) cube(10,center=true);
 
+X_BELT_OZREAL = -2 + METAL_TOP - (-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP + (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2); // Initial small slop to account for bottom bearing gap
+
+// Defaults for pulley_housing in cnc.scad
+p_oh = 8.5;
+hslop = 1;
+
+X_BELT_OXREAL = -(CORNER_BLOCK_T/2 + (p_oh+hslop*2)/2);
+
+X_BELT_OY = X_BELT_OZREAL;
+X_BELT_OX = X_BELT_OXREAL;
+
+translate([X_BELT_OX, X_BELT_OZREAL, 100]) cube([2,2,200],center=true);
 
 
 CLAMP_L = 100;
@@ -40,7 +56,7 @@ CLAMP_OY = -4+BELT_GAP;
 CLAMP_OZ = 80;
 MOTOR_OY = -BLOCK_H/3;
 
-
+//BELT_H;
 
 
 module addons() {
@@ -53,8 +69,11 @@ module addons() {
     translate([0,CLAMP_OY,0]) translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,-CLAMP_L/2+CLAMP_OZ])
       difference() {
         union() {
+          translate([0,BELT_INTERVAL/2-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
+          // Clamp
           rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
-          
+
+          // Motor
           translate([-CLAMP_T/2,MOTOR_OY,-motor_height+20])
             translate([
                 -(2*MOTOR_HOUSING_TOP_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,
@@ -63,12 +82,14 @@ module addons() {
               ])
               rotate([0,0,180]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, point_up=true, support=true);
 
+          // Tunnel
           difference() {
             translate([-CLAMP_T/2,MOTOR_OY-(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,-50]) cube([CLAMP_T, 2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP, 100]);
             WALL = 2;
             translate([-CLAMP_T/2,0*BELT_INTERVAL,-50]) translate([WALL,-BLOCK_H,0]) cube([CLAMP_T-2*WALL, 2*BLOCK_H, 100]);
           }
         }
+        // Ledge cutoff
         // This cutoff won't print QUITE right, but hopefully good enough
         down(33-(-motor_height+20)) rotate([0,45,0]) OZm([0,0,0]);
       }

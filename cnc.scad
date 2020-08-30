@@ -8,20 +8,19 @@ Printed at -0.08mm horizontal extrusion (Cura).
 use <deps.link/erhannisScad/misc.scad>
 use <deps.link/scadFluidics/common.scad>
 use <deps.link/BOSL/shapes.scad>
-include <params.scad>
+include <common.scad>
 
 $fn=60;
 BIG = 1000;
 EPS = 1e-8;
 
-BLOCK_T = 40;
-
-BLOCK_L = 90;
+BLOCK_T = CORNER_BLOCK_T;
+BLOCK_L = CORNER_BLOCK_L;
 CUTOUT_W = 5*(9/5);
 
 ENDSTOP_SCREW_HOLE_L = BLOCK_T/2;//40;
 
-EXTRA_TOP = 40;
+EXTRA_TOP = CORNER_EXTRA_TOP;
 
 
 
@@ -102,7 +101,7 @@ module corner() {
 motor_height = 39.3;
 //rotate([180,0,0])
 //mirror([1,0,0]) // Opposite side
-union() { // Corner with motor
+*union() { // Corner with motor
   difference() {
     corner();
     // Endstop cutout
@@ -123,7 +122,7 @@ union() { // Corner with motor
 
 //difference() { // For test
 //mirror([1,0,0]) // Opposite side
-*union() { // Corner with pulley
+union() { // Corner with pulley
   difference() {
     corner();
     translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
