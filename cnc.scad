@@ -33,7 +33,7 @@ EXTRA_TOP = CORNER_EXTRA_TOP;
 Note that the spacer_h does NOT affect the overall size of the gap!
 I.e., if spacer_h gets too big, you won't be able to fit the pulley between the spacers.
 */
-module pulley_housing(p_od = 18, p_oh = 8.5, hole_d = 5, brace_w = 30, brace_t = 14.2, dslop = 2, hslop = 1, rim_h=0, rim_t=1, spacer_h = 0.5, spacer_t = 1, cutout = false) {
+module pulley_housing(p_od = PULLEY_OD, p_oh = PULLEY_OH, hole_d = PULLEY_HOLE_D, brace_w = 30, brace_t = 14.2, dslop = 2, hslop = 1, rim_h=0, rim_t=1, spacer_h = 0.5, spacer_t = 1, cutout = false) {
   if (cutout) {
     teardrop(d=hole_d,h=brace_t*2);
   } else {
