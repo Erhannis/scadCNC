@@ -14,7 +14,7 @@ B_WIDTH = 5;
 B_BORE = 6;
 B_DIAM = 13;
 
-METAL_SIZE = METAL_H+5;
+METAL_SIZE = METAL_H+2;
 METAL_TOP = METAL_H-METAL_T;
 
 WALL_THICK = METAL_T * 20;
@@ -26,7 +26,7 @@ WALL_HEIGHT = WALL_THICK*5;
 SLOT_FREE = 0.6;
 SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
-DUMMY = true;
+DUMMY = false;
 
 X_BELT_OZREAL = -2 + METAL_TOP - (-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP + (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2); // Initial small slop to account for bottom bearing gap
 
@@ -39,7 +39,7 @@ X_BELT_OXREAL = -(CORNER_BLOCK_T/2 + (p_oh+hslop*2)/2);
 X_BELT_OY = X_BELT_OZREAL;
 X_BELT_OX = X_BELT_OXREAL;
 
-translate([X_BELT_OX, X_BELT_OZREAL, 100]) cube([2,2,200],center=true);
+//translate([X_BELT_OX, X_BELT_OZREAL, 100]) cube([2,2,200],center=true);
 
 
 CLAMP_L = 100;
@@ -50,7 +50,7 @@ BELT_GAP = 17; // or so
 
 CLAMP_OY = -4+BELT_GAP;
 CLAMP_OZ = 80;
-MOTOR_OY = -BLOCK_H/3;
+MOTOR_OY = -(TAPER_H+BELT_H/2);//BLOCK_H/3;
 
 
 module addons() {
@@ -64,7 +64,8 @@ module addons() {
     translate([X_BELT_OX,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),-CLAMP_L/2+CLAMP_OZ])
       difference() {
         union() {
-          translate([0,BELT_INTERVAL/2-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
+          //translate([0,BELT_INTERVAL/2-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
+          //translate([0,-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
           // Clamp
           rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
 
@@ -107,14 +108,16 @@ difference() { // Carriage
     }
   }
   // Y-Belt tunnel
+  ctranslate([0,BELT_INTERVAL,0])
   //translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
-  ctranslate([0,BELT_INTERVAL,0]) translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
+  //translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
+  translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([8,BIG,16.5]);
   
   INSET = -B_DIAM/2-METAL_T/2;
   //TODO Missing motor-side base wall-facing bearings - not sure if room
-  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.8, dummy=DUMMY);
+  mirror([1,0,0]) translate([0,0,WALL_HEIGHT*0.5]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.75, dummy=DUMMY);
   for (j=[0.3,0.7]) mirror([1,0,0]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.2,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK/2, dummy=DUMMY);
-  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.8, dummy=DUMMY);
+  for (j=[0.3,0.7]) translate([0,0,WALL_HEIGHT*j]) translate([0,METAL_SIZE*0.8,0]) translate([INSET,0,0]) rotate([0,0,90+180]) bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, access_depth=WALL_THICK*0.75+B_DIAM, dummy=DUMMY);
   for (j=[0.2,0.5,0.8]) translate([0,0,WALL_HEIGHT*j]) translate(-[(WALL_THICK/2-METAL_T*2/2)/2+METAL_T*2/2,0,0]) translate([0,-INSET-METAL_T,0]) rotate([0,0,180]) {
     bearingSlot([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5], nub_diam=B_BORE*1.1, nub_stem=SLOT_FREE/2, nub_slope_angle=60, nub_slope_translation=-SLOT_FREE/2, dummy=DUMMY);
     translate([0,-B_DIAM*0.8,0]) {
@@ -187,7 +190,8 @@ union() { // Crossbar seat clip
 }
 
 // Bearing placer
-* rotate([90,0,0]) bearingPlacer([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5],bearing_diam=B_DIAM*1.05);
+//NOTE: You may want to mess with the z-size.  I added 1mm because it was a little too loose, how I printed it.
+* rotate([90,0,0]) bearingPlacer([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5+1],bearing_diam=B_DIAM*1.05);
 
 // Motor cover
 * rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
