@@ -39,7 +39,6 @@ X_BELT_OXREAL = -(CORNER_BLOCK_T/2 + (p_oh+hslop*2)/2);
 X_BELT_OY = X_BELT_OZREAL;
 X_BELT_OX = X_BELT_OXREAL;
 
-//translate([X_BELT_OX, X_BELT_OZREAL, 100]) cube([2,2,200],center=true);
 
 
 CLAMP_L = 100;
@@ -60,12 +59,9 @@ module addons() {
   }
   
   difference() {
-    //translate([0,CLAMP_OY,0]) translate([-CLAMP_T/2-WALL_THICK/2,METAL_SIZE+WALL_THICK/2,-CLAMP_L/2+CLAMP_OZ])
     translate([X_BELT_OX,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),-CLAMP_L/2+CLAMP_OZ])
       difference() {
         union() {
-          //translate([0,BELT_INTERVAL/2-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
-          //translate([0,-TAPER_H-BELT_H/2,0]) cube([2,2,200],center=true);
           // Clamp
           rotate([-90,0,0]) rotate([0,0,90]) beltClamp(l=CLAMP_L,t=CLAMP_T);
 
@@ -109,9 +105,7 @@ difference() { // Carriage
   }
   // Y-Belt tunnel
   ctranslate([0,BELT_INTERVAL,0])
-  //translate([0,METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
-  //translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2),CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([10,BIG,15]);
-  translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([8,BIG,16.5]);
+    translate([0,X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ]) translate([0,-BELT_INTERVAL/2,8]) rotate([0,0,90]) vslot([8,BIG,16.5]);
   
   INSET = -B_DIAM/2-METAL_T/2;
   //TODO Missing motor-side base wall-facing bearings - not sure if room
