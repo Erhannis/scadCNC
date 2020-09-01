@@ -11,7 +11,7 @@ include <common.scad>
 $fn=60;
 
 // Important
-DUMMY = true;
+DUMMY = false;
 PULLEY_RATHER_THAN_MOTOR = true;
 
 B_WIDTH = 5;
