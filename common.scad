@@ -1,10 +1,29 @@
 use <deps.link/BOSL/nema_steppers.scad>
 use <deps.link/BOSL/joiners.scad>
+use <deps.link/erhannisScad/misc.scad>
 
 // Metal
 
 METAL_T = 1.5;
 METAL_H = 32;
+
+
+// Toolplate
+TP_THICK = 5;
+TP_BAR_THICK = 16; // Across base
+TP_SOCKET_DEPTH = 8;
+TP_SOCKET_THICK = 6; // Rough measurement
+
+module socket(depth=TP_SOCKET_DEPTH,center=false) {
+  translate([0,0,(TP_BAR_THICK+2*TP_SOCKET_THICK)/2+TP_THICK]) rotate([0,0,90]) rotate([0,-90,0]) {
+    linear_extrude(height=depth, center=center) {
+      difference() {
+        triangle(height=(TP_BAR_THICK+2*TP_SOCKET_THICK)/2+TP_THICK);
+        translate([0,TP_THICK,0]) triangle(height=TP_BAR_THICK/2);
+      }
+    }
+  }
+}
 
 
 // ????

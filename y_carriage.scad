@@ -1,5 +1,6 @@
 /**
-An y-carriage, designed for running on angle aluminum, set on a surface.
+A y-carriage, designed for running on angle aluminum, set on a surface.
+There are two sides; see PULLEY_RATHER_THAN_MOTOR .
 Printed at -0.08mm horizontal extrusion (Cura).
 */
 
@@ -11,7 +12,7 @@ include <common.scad>
 $fn=60;
 
 // Important
-DUMMY = false;
+DUMMY = true;
 PULLEY_RATHER_THAN_MOTOR = false;
 
 B_WIDTH = 5;
@@ -282,3 +283,5 @@ mirror([PULLEY_RATHER_THAN_MOTOR ? 1 : 0,0,0]) {
   cube([20,CROSSBAR_SY+10,CROSSBAR_SZ+10],center=true);
   cube([BIG,CROSSBAR_SY+2*SLOP,CROSSBAR_SZ+2*SLOP],center=true);
 }
+
+translate([0,BELT_INTERVAL/2+X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ]) cube([BIG,1,1],center=true);
