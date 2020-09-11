@@ -1,11 +1,14 @@
 use <deps.link/BOSL/nema_steppers.scad>
 use <deps.link/BOSL/joiners.scad>
 use <deps.link/erhannisScad/misc.scad>
+include <belt_clamp.scad>
 
 // Metal
 
 METAL_T = 1.5;
 METAL_H = 32;
+METAL_SIZE = METAL_H+2;
+METAL_TOP = METAL_H-METAL_T;
 
 
 // Toolplate
@@ -53,11 +56,50 @@ MOTOR_HOUSING_SLOP = 0.0;
 MOTOR_HOUSING_SIDE_THICKNESS = 10;
 MOTOR_HOUSING_TOP_THICKNESS = 3.5;
 MOTOR_HOUSING_JOINER_EXTRA_SPACING = 10;
-motor_height = 39.3;
+MOTOR_HEIGHT = 39.3;
+
+
+// Y-Carriage
+YC_X_BELT_OZREAL = -2 + METAL_TOP - (-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP + (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2); // Initial small slop to account for bottom bearing gap
+
+// Defaults for pulley_housing in cnc.scad
+YC_HSLOP = 1;
+
+YC_X_BELT_OXREAL = -(CORNER_BLOCK_T/2 + (PULLEY_OH+YC_HSLOP*2)/2);
+
+YC_X_BELT_OY = YC_X_BELT_OZREAL;
+YC_X_BELT_OX = YC_X_BELT_OXREAL;
+
+YC_CLAMP_L = 100;
+YC_CLAMP_T = 15;
+YC_BLOCK_H = 9+YC_CLAMP_T/2; // The 9 is kinda cheating
+YC_BELT_INTERVAL = 11; // or so
+YC_BELT_GAP = 17; // or so
+
+YC_CLAMP_OY = -4+YC_BELT_GAP;
+YC_CLAMP_OZ = 80;
+YC_MOTOR_OY = -(TAPER_H+BELT_H/2);//BLOCK_H/3;
+
+YC_WALL_THICK = METAL_T * 20;
+
+CROSSBAR_SEAT_OY = METAL_SIZE+YC_WALL_THICK/2+YC_CLAMP_OY+YC_MOTOR_OY;
+CROSSBAR_SEAT_OZ = YC_CLAMP_OZ-10;
+CROSSBAR_SEAT_SX = 20;
+CROSSBAR_SEAT_WALL = 5;
+CROSSBAR_SY = 25.64;
+CROSSBAR_SZ = 25.64;
+CROSSBAR_SOCKET = 10;
+CROSSBAR_SEAT_SLOP = 0.2;
+
 
 BIG = 1000;
 
-module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10, top_thickness = 3.5, slop = 0, joiner_clearance = 0, holes = true, top = false, support = false, point_up = false) {
+/**
+//TODO `acenter` is a bit weird, but the -1/1 thing works nicely....
+acenter = [0,0,0]
+  Whether to center along each of the given axes.  0 is centered on motor, positive is face-flush against the 0-plane for that axis occupying the positive side, negative is likewise but occupying the negative side.
+*/
+module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10, top_thickness = 3.5, slop = 0, joiner_clearance = 0, holes = true, acenter = [0,0,0], top = false, support = false, point_up = false) {
   NEMA = 17;
   SX = nema_motor_width(NEMA);
   SY0 = motor_height;
@@ -66,7 +108,11 @@ module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10,
   SZ = point_up ? SY0 : SZ0;
   THICK = side_thickness;
   
-  rotate([0,90,0]) {
+  rotate([0,90,0]) translate([
+    !acenter[2] ? 0 : -sign(acenter[2])*(2*THICK+SZ + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*slop)/2,
+    !acenter[1] ? 0 : sign(acenter[1])*(2*THICK+SY + 2*slop)/2,
+    !acenter[0] ? 0 : sign(acenter[0])*(2*top_thickness+SX + 2*slop)/2
+  ]) {
     difference() {
       union() {
         cube([2*THICK+SZ + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*slop, 2*THICK+SY + 2*slop, 2*top_thickness+SX + 2*slop], center=true);
@@ -135,5 +181,4 @@ module nema17_housing(motor_height = 39.3, plug_width = 18, side_thickness = 10,
     }
   }
 }
-
-//nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, point_up=true, support=true);
+//nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, acenter=[1,0,0], top=false, point_up=false, support=false);

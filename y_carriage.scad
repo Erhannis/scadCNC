@@ -19,10 +19,7 @@ B_WIDTH = 5;
 B_BORE = 6;
 B_DIAM = 13;
 
-METAL_SIZE = METAL_H+2;
-METAL_TOP = METAL_H-METAL_T;
-
-WALL_THICK = METAL_T * 20;
+WALL_THICK = YC_WALL_THICK;
 LIP = B_WIDTH*2;
 WALL_HEIGHT = WALL_THICK*5;
 
@@ -31,36 +28,28 @@ WALL_HEIGHT = WALL_THICK*5;
 SLOT_FREE = 0.6;
 SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
-X_BELT_OZREAL = -2 + METAL_TOP - (-CORNER_BLOCK_T/2-CORNER_EXTRA_TOP + (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2); // Initial small slop to account for bottom bearing gap
+X_BELT_OZREAL = YC_X_BELT_OZREAL;
 
 // Defaults for pulley_housing in cnc.scad
-hslop = 1;
+hslop = YC_HSLOP;
 
-X_BELT_OXREAL = -(CORNER_BLOCK_T/2 + (PULLEY_OH+hslop*2)/2);
+X_BELT_OXREAL = YC_X_BELT_OXREAL;
 
-X_BELT_OY = X_BELT_OZREAL;
-X_BELT_OX = X_BELT_OXREAL;
-
-
-
-CLAMP_L = 100;
-CLAMP_T = 15;
-BLOCK_H = 9+CLAMP_T/2; // The 9 is kinda cheating
-BELT_INTERVAL = 11; // or so
-BELT_GAP = 17; // or so
-
-CLAMP_OY = -4+BELT_GAP;
-CLAMP_OZ = 80;
-MOTOR_OY = -(TAPER_H+BELT_H/2);//BLOCK_H/3;
+X_BELT_OY = YC_X_BELT_OY;
+X_BELT_OX = YC_X_BELT_OX;
 
 
-CROSSBAR_SEAT_OY = METAL_SIZE+WALL_THICK/2+CLAMP_OY+MOTOR_OY;
-CROSSBAR_SEAT_OZ = CLAMP_OZ-10;
-CROSSBAR_SEAT_SX = 20;
-CROSSBAR_SEAT_WALL = 5;
-CROSSBAR_SY = 25.64;
-CROSSBAR_SZ = 25.64;
-CROSSBAR_SOCKET = 10;
+
+CLAMP_L = YC_CLAMP_L;
+CLAMP_T = YC_CLAMP_T;
+BLOCK_H = YC_BLOCK_H;
+BELT_INTERVAL = YC_BELT_INTERVAL;
+BELT_GAP = YC_BELT_GAP;
+
+CLAMP_OY = YC_CLAMP_OY;
+CLAMP_OZ = YC_CLAMP_OZ;
+MOTOR_OY = YC_MOTOR_OY;
+
 ENDSTOP_SCREW_HOLE_L = CROSSBAR_SEAT_WALL*3;
 
 
@@ -82,13 +71,13 @@ module addons() {
             translate([CLAMP_T*0.5,-BLOCK_H,-CLAMP_L/2]) cube([((-CLAMP_T/2-WALL_THICK/2)-X_BELT_OX), BLOCK_H, CLAMP_L]);
           } else {
             // Motor
-            translate([-CLAMP_T/2,MOTOR_OY,-motor_height+20])
+            translate([-CLAMP_T/2,MOTOR_OY,-MOTOR_HEIGHT+20])
               translate([
                   -(2*MOTOR_HOUSING_TOP_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,
                   0,
-                  (2*MOTOR_HOUSING_SIDE_THICKNESS+motor_height + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2
+                  (2*MOTOR_HOUSING_SIDE_THICKNESS+MOTOR_HEIGHT + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2
                 ])
-                rotate([0,0,180]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, point_up=true, support=true);
+                rotate([0,0,180]) nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, point_up=true, support=true);
             
             // Tunnel
             difference() {
@@ -103,7 +92,7 @@ module addons() {
         if (PULLEY_RATHER_THAN_MOTOR) {
           up(20) rotate([0,45,0]) OZm([0,0,0]);
         } else {
-          down(33-(-motor_height+20)) rotate([0,45,0]) OZm([0,0,0]);
+          down(33-(-MOTOR_HEIGHT+20)) rotate([0,45,0]) OZm([0,0,0]);
         }
       }
     OZm();
@@ -167,8 +156,7 @@ mirror([PULLEY_RATHER_THAN_MOTOR ? 1 : 0,0,0]) {
       
       // Crossbar seat
       //translate([WALL_THICK/2,CROSSBAR_SEAT_OY,CROSSBAR_SEAT_OZ-CROSSBAR_SZ]) rotate([0,0,-90]) ledge(CROSSBAR_SY,CROSSBAR_SEAT_SX);
-      SLOP = 0.2;
-      translate([BIG/2-WALL_THICK/2,CROSSBAR_SEAT_OY,CROSSBAR_SEAT_OZ-CROSSBAR_SZ/2]) cube([BIG,CROSSBAR_SY+2*SLOP,CROSSBAR_SZ+2*SLOP],center=true);
+      translate([BIG/2-WALL_THICK/2,CROSSBAR_SEAT_OY,CROSSBAR_SEAT_OZ-CROSSBAR_SZ/2]) cube([BIG,CROSSBAR_SY+2*CROSSBAR_SEAT_SLOP,CROSSBAR_SZ+2*CROSSBAR_SEAT_SLOP],center=true);
     }
     
     INSET = -B_DIAM/2-METAL_T/2;
@@ -259,7 +247,7 @@ mirror([PULLEY_RATHER_THAN_MOTOR ? 1 : 0,0,0]) {
 * rotate([90,0,0]) bearingPlacer([SLOT_WIDTH,B_DIAM*1.1,B_DIAM*1.5+1],bearing_diam=B_DIAM*1.05);
 
 // Motor cover
-* rotate([0,-90,0]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
+* rotate([0,-90,0]) nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 
 // Axle
 * translate([0,-10,0]) union() {
@@ -278,10 +266,12 @@ mirror([PULLEY_RATHER_THAN_MOTOR ? 1 : 0,0,0]) {
   cylinder(h=p_oh*2, d=hole_d);
 }
 
+// Crossbar seat sizing test
 *difference() {
-  SLOP = 0.25;
+  SLOP = CROSSBAR_SEAT_SLOP;
   cube([20,CROSSBAR_SY+10,CROSSBAR_SZ+10],center=true);
   cube([BIG,CROSSBAR_SY+2*SLOP,CROSSBAR_SZ+2*SLOP],center=true);
 }
 
-translate([0,BELT_INTERVAL/2+X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ]) cube([BIG,1,1],center=true);
+translate([BIG/2-WALL_THICK/2,CROSSBAR_SEAT_OY-(CROSSBAR_SY+2*CROSSBAR_SEAT_SLOP)/2,CROSSBAR_SEAT_OZ-CROSSBAR_SZ/2+(CROSSBAR_SZ+2*CROSSBAR_SEAT_SLOP)/2]) cube([BIG,1,1],center=true);
+translate([0,BELT_INTERVAL/2+X_BELT_OY-(BELT_INTERVAL/2-TAPER_H-BELT_H/2)+MOTOR_OY,CLAMP_OZ+8]) cube([BIG,1,1],center=true);

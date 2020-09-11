@@ -98,7 +98,6 @@ module corner() {
   }
 }
 
-motor_height = 39.3;
 //rotate([180,0,0])
 //mirror([1,0,0]) // Opposite side
 *union() { // Corner with motor

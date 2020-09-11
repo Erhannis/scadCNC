@@ -26,15 +26,18 @@ module toolplate() {
 }
 
 // Bars (print two)
-rotate([90,0,0]) union() {
-  linear_extrude(height=TP_HEIGHT+2*TP_SOCKET_DEPTH)
-    triangle(height=TP_BAR_THICK/2);
-  mirror([0,0,1]) translate([-TP_BAR_THICK/2,0,0]) cube([TP_BAR_THICK*1.5,TP_BAR_THICK/2,TP_BAR_THICK/3]);
+!rotate([90,0,0]) union() {
+  difference() {
+    linear_extrude(height=TP_HEIGHT+2*TP_SOCKET_DEPTH)
+      triangle(height=TP_BAR_THICK/2);
+    cmirror([1,1,0]) cmirror([1,0,0]) OXm([1.5-TP_BAR_THICK/2,0,0]);
+  }
+  mirror([0,0,1]) translate([-TP_BAR_THICK,0,0]) cube([TP_BAR_THICK*2,TP_BAR_THICK/2,TP_BAR_THICK/3]);
 }
 
 
 // Pen toolplate
-!union() {
+union() {
   H = TP_HEIGHT;
   ID = 12.85;
   OD = ID + 10;

@@ -33,6 +33,23 @@ SLOT_WIDTH = B_WIDTH+SLOT_FREE;
 
 B_INSET = B_DIAM/2+METAL_THICK/2;
 
+union() { // Belt clamp
+  DY = -METAL_THICK/2
+        + (YC_BELT_INTERVAL/2+YC_X_BELT_OZREAL-(YC_BELT_INTERVAL/2-TAPER_H-BELT_H/2)+YC_MOTOR_OY)
+        - (CROSSBAR_SEAT_OY-(CROSSBAR_SY+2*CROSSBAR_SEAT_SLOP)/2);
+  DZ = METAL_THICK/2
+        + (YC_CLAMP_OZ+8)
+        - (CROSSBAR_SEAT_OZ-CROSSBAR_SZ/2+(CROSSBAR_SZ+2*CROSSBAR_SEAT_SLOP)/2);
+
+  //translate([EDGE_LEN,0,0]) cube([1,1,BIG],center=true);
+  //translate([EDGE_LEN+DZ,DY,0]) cube([1,1,BIG],center=true);
+  difference() {
+    BLOCK_T = 2*(DZ-WALL_THICK/2);
+    translate([EDGE_LEN+WALL_THICK/2,DY,10]) translate([BLOCK_T/2,0,0]) rotate([0,90,90]) translate([0,0,TAPER_H+BELT_H/2]) beltClamp(t=BLOCK_T,l=50);
+    up(8) translate([EDGE_LEN+WALL_THICK/2,0,0]) rotate([0,-45,0]) OZm();
+  }
+}
+
 DUMMY = true;
 
 N = 0;
@@ -54,6 +71,14 @@ difference() { // Carriage
         channel([0,0],[EDGE_LEN,0],d=METAL_THICK+THICK_SLOP, cap="square");
         channel([EDGE_LEN,0],[EDGE_LEN,EDGE_LEN+EDGE_SLOP],d=METAL_THICK+THICK_SLOP, cap="square");
       }
+    // Motor
+    translate([-WALL_THICK/2,EDGE_LEN+EDGE_SLOP+WALL_THICK/2,WALL_HEIGHT]) rotate([0,0,90]) mirror([0,1,0])
+        difference() {
+          nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, acenter=[1,1,-1], point_up=false, support=true);
+          //TODO Undercut is hardcoded
+          translate([0,73.25,-75]) rotate([45,0,0]) OZm();
+          translate([25,0,-75]) rotate([0,-45,0]) OZm();
+        }
     // Sockets
     translate([-WALL_THICK/2,WALL_THICK/2+EDGE_LEN+EDGE_SLOP,0]) {
       socket();
@@ -104,3 +129,6 @@ difference() { // Carriage
   stirnrad(modul=1, zahnzahl=19, breite=SZ, bohrung=0, eingriffswinkel=20, schraegungswinkel=0, optimiert=false);
   flattedShaft(h=BIG,r=2.5 + 0.15,center=true);
 }
+
+//Motor cover
+* rotate([0,-90,0]) nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=true, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS, acenter=[1,1,-1], point_up=false, support=false);
