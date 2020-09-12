@@ -12,7 +12,7 @@ include <common.scad>
 $fn=60;
 
 // Important
-DUMMY = true;
+DUMMY = false;
 PULLEY_RATHER_THAN_MOTOR = false;
 
 B_WIDTH = 5;
@@ -145,6 +145,7 @@ mirror([PULLEY_RATHER_THAN_MOTOR ? 1 : 0,0,0]) {
         // House cutout
         difference() {
           rotate([0,0,90]) house([p_od+dslop,BIG,p_oh+hslop]);
+          // All of a sudden tube is emitting a bunch of warnings, when I don't think anything's changed - I don't understand why
           down(p_oh/2) mirror([0,0,1]) tube(h=spacer_h, id=hole_d, d=hole_d+spacer_t*2);
         }
         
