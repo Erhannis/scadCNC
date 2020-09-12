@@ -13,8 +13,6 @@ include <common.scad>
 
 $fn=60;
 
-echo(25.6-18.7);
-
 B_WIDTH = 5;
 B_BORE = 6;
 B_DIAM = 13;
@@ -50,7 +48,7 @@ union() { // Belt clamp
   }
 }
 
-DUMMY = true;
+DUMMY = false;
 
 N = 0;
 E = 270;
