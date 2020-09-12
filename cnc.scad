@@ -100,10 +100,11 @@ module corner() {
 
 //rotate([180,0,0])
 //mirror([1,0,0]) // Opposite side
-*union() { // Corner with motor
+union() { // Corner with motor
   difference() {
     corner();
     // Endstop cutout
+    //TODO I could probably make that cutout angle the short ways, instead, to cut less out
     translate([BLOCK_L-ENDSTOP_CUTOUT_SX,-BLOCK_T/2,0]) cmirror([0,0,1]) undercut([ENDSTOP_CUTOUT_SX, ENDSTOP_CUTOUT_SY, ENDSTOP_CUTOUT_SZ/2], center=false);
     // Endstop screw holes
     translate([BLOCK_L+ENDSTOP_SCREW_HOLE_DX,-BLOCK_T/2,0]) cmirror([0,0,1]) translate([0,0,ENDSTOP_SCREW_SEPARATION/2]) rotate([-90,0,0]) cylinder(d=ENDSTOP_SCREW_HOLE_D,h=ENDSTOP_SCREW_HOLE_L);
@@ -111,9 +112,9 @@ module corner() {
   translate([-BLOCK_T/2,-BLOCK_T/2,-BLOCK_T/2-EXTRA_TOP])
     translate([
       -(2*MOTOR_HOUSING_TOP_THICKNESS+nema_motor_width(17) + 2*MOTOR_HOUSING_SLOP)/2,
-      (2*MOTOR_HOUSING_SIDE_THICKNESS+motor_height+ 2*MOTOR_HOUSING_SLOP)/2,
+      (2*MOTOR_HOUSING_SIDE_THICKNESS+MOTOR_HEIGHT+ 2*MOTOR_HOUSING_SLOP)/2,
       (2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
-    rotate([0,0,180]) nema17_housing(motor_height=motor_height, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
+    rotate([0,0,180]) nema17_housing(motor_height=MOTOR_HEIGHT, plug_width=18, slop=MOTOR_HOUSING_SLOP, top=false, side_thickness=MOTOR_HOUSING_SIDE_THICKNESS, top_thickness=MOTOR_HOUSING_TOP_THICKNESS);
 }
 
 // Motor cover
@@ -121,7 +122,7 @@ module corner() {
 
 //difference() { // For test
 //mirror([1,0,0]) // Opposite side
-union() { // Corner with pulley
+*union() { // Corner with pulley
   difference() {
     corner();
     translate([0,0,(2*MOTOR_HOUSING_SIDE_THICKNESS+nema_motor_width(17) + MOTOR_HOUSING_JOINER_EXTRA_SPACING + 2*MOTOR_HOUSING_SLOP)/2])
